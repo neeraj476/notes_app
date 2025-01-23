@@ -33,10 +33,12 @@ export const userSignUp = async (req, res) => {
         }
 
         res.cookie('authToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: true, // Prevent client-side access
+            secure: process.env.NODE_ENV === 'production', // Only for HTTPS in production
+            sameSite: 'strict', // Protect against CSRF
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
+        
 
         return res.status(201).json({
             message: "User registered successfully",
@@ -63,7 +65,7 @@ export const userLogIn = async (req, res) => {
             });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password.trim(), user.password);
         if (!isMatch) {
             return res.status(400).json({ 
                 message: "Invalid email or password" 
@@ -82,10 +84,12 @@ export const userLogIn = async (req, res) => {
 
         // Set the token as a cookie
         res.cookie('authToken', token, {
-            httpOnly: true, // Prevent access from JavaScript
-            secure: process.env.NODE_ENV === 'production', // Use Secure in production
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+            httpOnly: true, // Prevent client-side access
+            secure: process.env.NODE_ENV === 'production', // Only for HTTPS in production
+            sameSite: 'strict', // Protect against CSRF
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
+        
 
         // Respond with success
         return res.status(200).json({
@@ -131,6 +135,27 @@ export const userProfile = async (req, res ) => {
         });
     } catch (error) {
         console.error("Error in userProfile route:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+};
+
+export const userLogOut = async (req, res) => {
+    try {
+        // Clear the auth token cookie
+        res.clearCookie('authToken', {
+            httpOnly: true, // Same settings as login for consistency
+            secure: process.env.NODE_ENV === 'production', // Only for HTTPS in production
+            sameSite: 'strict', // Protect against CSRF
+        });
+
+        // Respond with success
+        return res.status(200).json({
+            message: "Logout successful",
+        });
+    } catch (error) {
+        console.error("Error in logout route:", error);
         return res.status(500).json({
             message: "Internal server error",
         });
