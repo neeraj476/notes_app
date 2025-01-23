@@ -1,3 +1,4 @@
 # notes_app
 
-![image](https://github.com/user-attachments/assets/4d0e9f7c-91ff-486b-a48f-6c85adae0897)
+![image](https://github.com/user-attachments/assets/bc68ceb4-fc6e-4898-81e3-abd894345e03)
+
